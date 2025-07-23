@@ -65,4 +65,11 @@ f"mysql+mysqlconnector://{db_config['user']}:{db_config['password']}@{db_config[
 
 # createL47(db_config)
 line47Events = queryExecution("select * from events where production_line_id like '%47' and STATUS <> 'ON';", db_config)
+line47Start = line47Events.loc[line47Events['status'] == "START", 
+                               ['timestamp']].rename(columns = {'timestamp': 'start_timestamp'}).sort_values(by='start_timestamp', ascending=True).reset_index(drop=True)
+line47Stop = line47Events.loc[line47Events['status'] == "STOP", 
+                              ['timestamp']].rename(columns = {'timestamp' : 'stop_timestamp'}).sort_values(by='stop_timestamp', ascending=True).reset_index(drop=True)
+line47Events = pd.concat([line47Start, line47Stop], axis=1)
+line47Events['duration'] = pd.to_datetime(line47Events['stop_timestamp']) - pd.to_datetime(line47Events['start_timestamp'])
 print(line47Events)
+line47Events.to_sql('Line47', con = engine, if_exists='replace', index=False)
