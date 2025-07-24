@@ -1,5 +1,6 @@
 import mysql.connector
 import pandas as pd
+import numpy as np
 
 
 def ensure_database(db_config):
@@ -48,6 +49,16 @@ def queryExecution(query,db_config):
     conn.close()
     return df
     
+def fill_Nans(df):
+    df = df.copy()
+    for col in df.columns:
+        if df[col].notna().any():
+            firstValid = df[col].dropna().iloc[0]
+            first_valid_label = df[col].first_valid_index()
+            first_valid_pos = df.index.get_loc(first_valid_label)
+            df[col] = df[col].fillna("ON" if firstValid == "ON" else "STOP")
+            df[col].iloc[:first_valid_pos] = ("ON" if firstValid == "ON" else "STOP")
+    return df
 
 db_config = {
     'user': 'runtheorun',
@@ -61,15 +72,22 @@ engine = create_engine(
 f"mysql+mysqlconnector://{db_config['user']}:{db_config['password']}@{db_config['host']}/{db_config['database']}"
 )
 
-# load_data('dataset.csv', db_config)
+load_data('dataset.csv', db_config)
 
-# createL47(db_config)
-line47Events = queryExecution("select * from events where production_line_id like '%47' and STATUS <> 'ON';", db_config)
-line47Start = line47Events.loc[line47Events['status'] == "START", 
-                               ['timestamp']].rename(columns = {'timestamp': 'start_timestamp'}).sort_values(by='start_timestamp', ascending=True).reset_index(drop=True)
-line47Stop = line47Events.loc[line47Events['status'] == "STOP", 
-                              ['timestamp']].rename(columns = {'timestamp' : 'stop_timestamp'}).sort_values(by='stop_timestamp', ascending=True).reset_index(drop=True)
-line47Events = pd.concat([line47Start, line47Stop], axis=1)
-line47Events['duration'] = pd.to_datetime(line47Events['stop_timestamp']) - pd.to_datetime(line47Events['start_timestamp'])
-print(line47Events)
-line47Events.to_sql('Line47', con = engine, if_exists='replace', index=False)
+#Production Floor Stats (Up/Downtime)
+
+events_df = queryExecution("select * from events order by production_line_id, timestamp",db_config)
+
+
+pivot = events_df.pivot(index='timestamp', columns='production_line_id', values='status').reset_index()
+pivot.columns.name = None
+pivot = pivot.sort_index().ffill()
+pivot = fill_Nans(pivot)
+pivot['timedelta'] = pivot['timestamp'].diff()
+onlineStatuses = ['ON','START']
+pivot['atLeast1Line'] = pivot.apply(lambda row: int(row.isin(onlineStatuses).any()),axis=1)
+print(pivot.to_string())
+total_uptime = pivot['timedelta'][pivot['atLeast1Line'] == 1].sum()
+print("Total Production Floor Uptime: "+total_uptime)
+total_downtime = pivot['timedelta'][pivot['atLeast1Line'] == 0].sum()
+print("Total Production Floor Downtime: "+total_downtime)
