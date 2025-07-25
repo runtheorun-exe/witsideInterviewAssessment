@@ -17,3 +17,11 @@ Running this file should be enough.
 - `highestDowntime`: again makes use of pivotData and essentially performs a similar task to `productionFloorStats`, only for each production line separately, based on STOP events.
 - `pivotData`: this was designed to produce something akin to a matrix, with timestamps used as columns and each of the 4 production lines broken out into their own columns. This matrix is filled with the respective line's and timestamp's status. This process produces many NaN values as lines that started production later or stopped sooner appear in less timestamps. For this, the `fill_Nans` support function is called.
 - `fill_Nans`: In this function, any NaN values are filled based on the first or next valid value of each production line. NaN values can appear if the timestamps aren't perfectly aligned between production lines, but by checking the first valid status we can deduce that, for instance, a line has ceased production in a specific moment, so all NaNs above the STOP event can only be ON.
+
+## Setup
+If you wish to use this script as a package, install it via pip:
+```pip install -i https://test.pypi.org/simple/ productionLineToolbox==0.0.1```
+Remember the 3 core functions are:
+`line47Table(events_df)`
+`productionFloorStats(events_df)`
+`highestDowntime(events_df)`
