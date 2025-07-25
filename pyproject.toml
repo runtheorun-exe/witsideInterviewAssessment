@@ -1,0 +1,11 @@
+[build-system]
+requires = ["hatchling >= 1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "productionLineToolbox"
+version = "0.0.1"
+authors = [{name = "Charalampidis",email = "charis.p.charalampidis@gmail.com"},]
+description = "A witside interview project package"
+readme = "readme.md"
+requires-python = ">=3.9"

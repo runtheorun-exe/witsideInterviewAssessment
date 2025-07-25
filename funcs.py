@@ -1,6 +1,7 @@
-from sqlalchemy import create_engine
 import pandas as pd
-import numpy as np
+import warnings
+warnings.filterwarnings("ignore") #I know what this looks like; 
+#warning ignored:FutureWarning: ChainedAssignmentError: behaviour will change in pandas 3.0!
 
 def fill_Nans(df):
     df = df.copy()
@@ -61,4 +62,17 @@ def highestDowntime(df):
 
     print(f"Production line with most downtime: {max_row['line']}")
     print(f"Total downtime: {max_row['downtime']}")
+
+
+
+events_df = pd.read_csv('dataset.csv', parse_dates=['timestamp'])
+
+#Line 47 Table creation
+line47Table(events_df)
+
+# Production Floor Stats (Up/Downtime)
+productionFloorStats(events_df)
+
+# Production Line with the most downtime
+highestDowntime(events_df)
 
