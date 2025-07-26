@@ -2,9 +2,9 @@
 With that said, if you're not part of the interviewing process, kindly look away :)
 
 ## File Description:
-### main.py:
- - Contains nothing but function calls and the initial data import to dataframe.
-Running this file should be enough.
+~~### main.py:~~ (readme correction: main.py was deleted in the previous commit and essentially merged under funcs.py)
+ ~~- Contains nothing but function calls and the initial data import to dataframe.
+Running this file should be enough.~~
 ### funcs.py:
  - Contains all functions called by main.py + some supporting functions.
 ### dataset.csv
