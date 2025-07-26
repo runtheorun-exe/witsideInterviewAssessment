@@ -20,8 +20,9 @@ Running this file should be enough.
 
 ## Setup
 If you wish to use this script as a package, install it via pip:
-```pip install -i https://test.pypi.org/simple/ productionLineToolbox==0.0.1```
+```pip install -i https://test.pypi.org/simple/ productionLineToolbox==0.1.0 ```
 Remember the 3 core functions are:
 `line47Table(events_df)`
 `productionFloorStats(events_df)`
 `highestDowntime(events_df)`
+and the data is *not hard-coded*. If you wish to test the PyPI package please provide the dataset before running any of the functions.
